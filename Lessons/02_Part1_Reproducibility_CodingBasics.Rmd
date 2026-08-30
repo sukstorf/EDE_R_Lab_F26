@@ -1,0 +1,374 @@
+---
+title: "M2: Reproducibility and R Coding Basics"
+subtitle: "Environmental Data Exploration"
+author: "John Fay and Luana Lima | Adapted from Kateri Salk"
+output: pdf_document
+---
+
+## Objectives
+
+By the end of this part of the module, you should be able to:
+
+1. Apply basic practices that support reproducible data analysis.
+2. Navigate the main panes and tools in RStudio.
+3. Execute and interpret basic R code.
+4. Create, name, and document R objects.
+5. Use built-in functions and create simple custom functions.
+6. Work with lists and use conditional logic in simple functions.
+7. Use R's documentation and RStudio tools to get help.
+
+> **Before you begin:** This document assumes that you have watched **Video 1: Introduction to R Markdown and Reproducible Reports**. In that video, we introduce the three main components of an R Markdown document (YAML, Markdown text, and code chunks) and the basic knit workflow.
+
+# Reproducibility and RStudio Basics
+
+## Reproducible Data Analysis
+
+### What does reproducibility mean?
+
+**Reproducibility** means that someone else -- including your future self -- can use the same data and analytical steps to obtain the same results.
+
+Imagine that you analyze an environmental dataset today and receive an updated version two years from now. If your workflow is reproducible, you should be able to apply the same documented steps to the updated data without trying to remember a series of manual edits.
+
+### Practices that support reproducibility
+
+- Keep **raw data separate from processed data**.
+- Preserve an untouched copy of the raw dataset.
+- Perform cleaning and transformations in code whenever possible.
+- Avoid undocumented manual edits to raw data. Spreadsheet software can be useful for viewing data, but manual changes are difficult to reproduce unless they are explicitly documented.
+- Use well-commented code to document important analytical decisions.
+- Automate repeated data-processing steps when practical.
+
+A large portion of data analysis is often spent cleaning, transforming, and wrangling data. A documented pipeline makes those steps easier to inspect, repeat, and update.
+
+### File and folder organization
+
+Good organization is also part of a reproducible workflow.
+
+- Prefer non-proprietary data formats when practical (e.g., `.csv`, `.txt`).
+- Use descriptive, consistent file names.
+- Avoid spaces and unusual characters in file names.
+- Use separators such as underscores when helpful (e.g., `water_quality_2026.csv`).
+- Keep different types of project files organized in separate folders.
+
+A simple project might include:
+
+```text
+project/
+  data/
+  code/
+  output/
+```
+
+The exact structure can vary by project. The important point is that someone returning to the project later can quickly understand where inputs, code, and outputs belong.
+
+## Version Control: Git and GitHub
+
+This semester, we will use **version control** to track changes to code, text, and other project files.
+
+**Git** is the version-control system that tracks changes to files. **GitHub** is an online platform that hosts Git repositories and supports sharing and collaboration.
+
+Version control helps us preserve earlier versions of our work, understand what changed, and collaborate without creating files such as `analysis_final_final2.R`.
+
+A useful habit is to **pull** from the course repository when you begin working so that your local copy is up to date.
+
+## RStudio Basics
+
+When you open RStudio, you will typically see four main panes:
+
+**Source Editor** (top left) contains tabs for R scripts, R Markdown documents, and other source files. This is where you will write and edit most of your code.
+
+**Console** (bottom left) is where R executes commands. The Console is useful for quick checks and temporary calculations, but commands entered only in the Console are not automatically preserved as part of a reproducible script.
+
+**Environment/History** (top right) displays objects created during the current R session and a history of commands. When a project is connected to Git, you may also see a **Git** tab here.
+
+**Files/Plots/Packages/Help/Viewer** (bottom right) provides tools for browsing project files, viewing plots, managing packages, reading documentation, and displaying other output.
+
+You do not need to memorize every part of the interface now. You will become familiar with these panes as you use them throughout the course.
+
+# Coding Basics I: Running Code and Basic Operations
+
+## Running R code
+
+You can execute R code in several ways:
+
+- Place your cursor on a line of R code and press `Control + Enter` (Windows) or `Command + Enter` (Mac).
+- Highlight multiple lines and use the same shortcut to run them together.
+- In an R Markdown document, use the run button associated with a code chunk to execute the entire chunk.
+
+As you work, distinguish between the **code you send to R** and the **output R returns**.
+
+## R as a calculator
+
+```{r basic-math}
+# Basic math
+1 + 1
+1 - 1
+2 * 2
+1 / 2
+1 / 200 * 30
+
+# Order of operations
+5 + 2 * 3
+(5 + 2) * 3
+```
+
+R follows the usual mathematical order of operations. Parentheses can be used to specify which calculation should occur first.
+
+## Calling basic functions
+
+Functions are reusable operations. A typical function call has a **function name**, followed by parentheses containing one or more **arguments**.
+
+```{r basic-functions}
+# Mathematical functions and constants
+sqrt(25)
+sin(3)
+pi
+
+# Summary statistics
+values <- c(5, 4, 6, 4, 6)
+mean(values)
+median(values)
+```
+
+For example, in `sqrt(25)`, `sqrt` is the function name and `25` is the argument supplied to the function.
+
+## Logical comparisons
+
+Logical comparisons return either `TRUE` or `FALSE`.
+
+```{r logical-comparisons}
+4 > 5
+4 < 5
+4 != 5
+4 == 5
+```
+
+These simple comparisons become useful when filtering environmental data or making decisions in code. For example, later we might ask which observations have a temperature greater than a threshold or which measurements belong to a particular category.
+
+# Coding Basics II: Objects, Comments, and Creating Functions
+
+## Creating objects
+
+We often want to calculate something and store the result for later use. In R, we can store information in an **object** using the assignment operator `<-`.
+
+Think of the statement below as: **the object on the left gets the value calculated on the right**.
+
+```{r objects}
+x <- 3 * 4
+x
+```
+
+After running the assignment, `x` should also appear in the Environment pane.
+
+Although `=` can be used for assignment in some contexts, we will generally use `<-` for object assignment so that assignment is visually distinct from other uses of `=` in R.
+
+## Naming objects
+
+Use object names that communicate what the object contains. Descriptive names make code easier for collaborators -- and your future self -- to understand.
+
+Object names are **case sensitive**, and they cannot contain regular spaces. Underscores are a useful way to separate words.
+
+```{r naming}
+long_name_for_illustration <- 11
+long_name_for_illustration
+
+```
+
+Try typing `long` and pressing `Tab`. RStudio can help complete long object names, so descriptive names do not have to mean excessive typing.
+
+Also try changing the capitalization or removing an underscore. R will treat the altered name as a different object.
+
+Avoid overly generic names such as `a`, `b`, or `data1` when a more informative name is practical.
+
+## Comments
+
+Inside R code, a `#` begins a comment. R ignores everything after the `#` on that line.
+
+```{r comments}
+# This entire line is a comment.
+
+1 + 1 # This comment explains the calculation.
+```
+
+Comments can explain what a section of code does, document an important decision, or remind you why you chose a particular approach.
+
+## Function arguments with `seq()`
+
+Let's examine a built-in function more closely. The `seq()` function creates a sequence of values.
+
+```{r sequence}
+seq(1, 10)
+seq(1, 10, 2)
+seq(from = 1, to = 10, by = 2)
+
+```
+
+The values supplied inside the parentheses are **arguments**. Named arguments can make a function call easier to read. Some arguments also have default values, so they do not always need to be supplied explicitly.
+
+## Creating a simple function
+
+A useful way to think about a function is as a **recipe**:
+
+- the function has a name;
+- arguments are the ingredients;
+- the code inside the curly braces contains the steps; and
+- the function returns a result.
+
+The general structure is:
+
+```{r function-template, eval=FALSE}
+function_name <- function(arguments) {
+  # steps
+}
+```
+
+### A single-argument function
+
+```{r recipe-one}
+recipe_one <- function(x) {
+  mix <- x * 2
+  return(mix)
+}
+
+simple_meal <- recipe_one(5)
+simple_meal
+```
+
+The example is intentionally simple. The benefit of a function becomes clearer when the same multi-step operation needs to be repeated for many inputs.
+
+# Coding Basics III: Functions, Lists, and Conditional Logic
+
+## Returning multiple results with a list
+
+A function can return more than one related result. One way to do this is with a **list**, an R object that can contain multiple elements.
+
+```{r recipe-two}
+recipe_two <- function(x) {
+  mix_one <- x * 2
+  mix_two <- x / 2
+  return(list(
+    mix_one = mix_one,
+    mix_two = mix_two
+  ))
+}
+
+double_simple_meal <- recipe_two(6)
+double_simple_meal
+```
+
+## Accessing named elements with `$`
+
+Use `$` to access a named element of a list.
+
+```{r list-access}
+double_simple_meal$mix_one
+double_simple_meal$mix_two
+```
+
+Descriptive element names make structured function output easier to interpret.
+
+## Functions with multiple arguments
+
+Functions can also accept multiple inputs.
+
+```{r recipe-three}
+recipe_three <- function(x, f) {
+  mix_one <- x * f
+  mix_two <- x / f
+  return(list(
+    mix_one = mix_one,
+    mix_two = mix_two
+  ))
+}
+
+double_complex_meal <- recipe_three(x = 5, f = 2)
+double_complex_meal
+double_complex_meal$mix_one
+```
+
+## Conditional logic with `if` and `else`
+
+Logical comparisons can be used inside functions to make different decisions depending on the input.
+
+```{r if-else}
+recipe_four <- function(x) {
+  if (x < 3) {
+    x * 2
+  } else {
+    x / 2
+  }
+}
+
+recipe_five <- function(x) {
+  if (x < 3) {
+    x * 2
+  } else if (x > 3) {
+    x / 2
+  } else {
+    x
+  }
+}
+
+meal_one <- recipe_four(4)
+meal_two <- recipe_four(2)
+meal_three <- recipe_five(3)
+
+meal_one
+meal_two
+meal_three
+```
+
+The same pattern can later be used with environmental data: for example, to perform different operations depending on whether a measurement is above or below a threshold.
+
+## Compact conditional logic with `ifelse()`
+
+For simple vectorized conditions, R also provides `ifelse()`.
+
+```{r ifelse-example}
+recipe_six <- function(x) {
+  ifelse(x < 3, x * 2, x / 2)
+}
+
+meal_four <- recipe_six(4)
+meal_five <- recipe_six(2)
+
+meal_four
+meal_five
+```
+
+The three main arguments to `ifelse()` are the logical test, the value returned when the test is `TRUE`, and the value returned when it is `FALSE`.
+
+## Getting help in R
+
+You are not expected to memorize every function or argument. Looking at documentation is a normal part of programming.
+
+Useful approaches include:
+
+- Type `?function_name` to open documentation for a known function.
+- Type `help(function_name)` for the same purpose.
+- Type `??search_term` to search the help system more broadly.
+- Use the Help pane in RStudio.
+- Use RStudio autocomplete and `Tab` completion while typing.
+
+```{r help-example, eval=FALSE}
+?seq
+help(seq)
+??sequence
+```
+
+When reading a help page, pay attention to the function's **Usage**, **Arguments**, **Value**, and **Examples** sections.
+
+## Coding habits and RStudio tips
+
+- R is case sensitive.
+- Spaces generally do not affect ordinary R expressions, but spaces inside quotation marks are part of the text.
+- Parentheses, quotation marks, and curly braces usually appear in pairs in RStudio.
+- Use `Tab` completion for long object and function names.
+- Organize longer R Markdown and R script files into meaningful sections.
+- Use RStudio's document outline and code folding to navigate long files.
+
+# Part 1 Wrap-Up
+
+In this part of the module, we connected reproducible-workflow practices with foundational R programming skills. We moved from running simple expressions to storing results in objects, using and creating functions, working with lists, and adding conditional logic.
+
+In **Part 2: Crafting Reports**, we will return to R Markdown and use these skills to control how an analysis is presented to an audience.
