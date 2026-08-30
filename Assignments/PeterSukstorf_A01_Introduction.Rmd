@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction to Data Exploration"
-author: "Student Name"
+author: Peter Sukstorf
 output: pdf_document
 ---
 
@@ -22,22 +22,22 @@ Enter answers to the questions just below the >Answer: prompt.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: 
+> Answer: Not much previous experience really, except academic research projects that did a little with excel and which used ArcGIS Pro. 
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: 
+> Answer: I feel I am usually tech-proficient, which hopefully will help with some aspects of this course. However, with how much trouble I've had so far with assignment one, maybe I am not as capable in this realm as I hope.
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: 
+> Answer: So far, getting everything to play nicely together between Rstudio and Github has been challenging. I've never used R before, but I'm looking forward to learning how to. The quick turnaround on assignments also makes me a little apprehensive, as it seems it might be difficult to attend office hours between receiving the assignment and it being due (should I ever need help understanding or debugging). 
 
 
 ## 2) GitHub
 
 Go over Tasks 1.1. through 1.6 on Course Setup page. Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository and that you have updated your course README file, committed those changes, and pushed them to your GitHub account. 
 
-> Answer: 
+> Answer: https://github.com/sukstorf/EDE_R_Lab_F26
 
 ## 3) Knitting
 When you have completed this document, click the `knit` button.This should produce a PDF copy of your markdown document. Submit this PDF to Canvas 
