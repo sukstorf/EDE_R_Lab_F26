@@ -38,11 +38,13 @@ vector1 <- c(1,2,5.3,6,-2,4) # Vector type: Numeric
 vector1
 class(vector1)
 
-vector2 <- c("one","two","three") # Vector type: 
+vector2 <- c("one","two","three") # Vector type: String
 vector2
+class(vector2)
 
-vector3 <- c(TRUE,TRUE,TRUE,FALSE,TRUE,FALSE) # Vector type:
+vector3 <- c(TRUE,TRUE,TRUE,FALSE,TRUE,FALSE) # Vector type: Boolean
 vector3
+class(vector3)
 ```
 
 ### Vector Operations
@@ -52,25 +54,25 @@ Add comments below to indicate what each operation does.(First answer is provide
 # Returns the 3rd item in the vector
 vector1[3]
 
-#
+#Returns the maximum value of the first vector
 max(vector1)
 
 #Create another vector of the values 10 thru 15
 vector4 <- c(10:15)
 
-#
+#Combines the two vectors
 c(vector1, vector4)
 
-#
+#Multiplies the vectors together linear algebra style
 vector1 * vector4
 
-#
+#Multiplies vector1 by 10
 vector1 * 10
 
-#
+#Makes vector 2 into all uppercase
 toupper(vector2) 
 
-#
+#Returns the opposite
 !vector3
 
 ```
@@ -82,16 +84,21 @@ Find a 5-day forecast of temperatures (Fahrenheit) for Durham, North Carolina. C
 ```{r Vector Exercise}
 
 #Assign to the variable 'temps_F' a vector of high temperatures in F
-
+temps_F <- c(97, 97, 96, 83, 84)
+temps_F
 
 #What is the average of these temperatures 
-
+average_temp_F <- mean(temps_F)
+average_temp_F
 
 #Compute the difference between each temperature and the average calculated above
-
+difference_in_temps <- c(temps_F - average_temp)
+difference_in_temps
+temps_F-mean(temps_F)
 
 #Subtract 32 and multiply by 5/9ths to create a vector in Celsius
-
+temps_C <- c((temps_F - 32) / 1.8)
+temps_C
 
 ```
 
@@ -102,11 +109,11 @@ Complete the comments below:
 # Matrices ----
 matrix1 <- matrix(1:20, nrow = 5,ncol = 4) # 
 matrix1
-#matrix1 has __ rows and __ columns
+#matrix1 has 5 rows and 4 columns
 
 matrix2 <- matrix(1:20, nrow = 5, ncol = 4, byrow = TRUE) #
 matrix2
-#matrix2 has __ rows and __ columns
+#matrix2 has 5 rows and 4 columns
 
 matrix3 <- matrix(
   data = 1:20, 
@@ -118,7 +125,7 @@ matrix3 <- matrix(
     c("un", "deux", "trois", "quatre")
     )
   ) 
-
+matrix3
 ```
 
 ### Matrix Operations
@@ -162,7 +169,7 @@ matrix4['R2','C1']
 ### Exercise 1b: Matrices
 Compute the mean of column "C2" in matrix4. (Should be 14.5)
 ```{r Matrix Exercise}
-
+mean(matrix4[,3])
 ```
 
 
@@ -177,6 +184,7 @@ list1 <- list(
   mynumbers = vector1, 
   mymatrix = matrix1, 
   age = 5.3)
+list1
 
 ```
 
@@ -215,12 +223,15 @@ f <- c(TRUE, TRUE, TRUE, FALSE) # What type of vector?
 
 #Combine the vectors into a dataframe
 dataframe1 <- data.frame(d,e,f) 
+View(dataframe1)
 
 #Set the column names & View
-names(dataframe1) <- c("ID","Color","Passed"); View(dataframe1) # 
+names(dataframe1) <- c("ID","Color","Passed"); View(dataframe1) # MUST comment out "View(dataframe1)" BEFORE knitting.
 
 #Add a new column to the dataframe
 dataframe1$month <- c('Jan','Feb', 'Mar', 'Apr')
+
+View(dataframe1)# MUST comment out "View(dataframe1)" BEFORE knitting.
 
 ```
 
@@ -241,9 +252,12 @@ dataframe1[,1]
 
 #Extract a column/columns from their name
 out1 <- dataframe1['Color']; class(out1)
+out1
 
 out2 <- dataframe1$Color; class(out2)
+out2
 
 out3 <- dataframe1[c("ID","Passed")]; class(out3)
+out3
 
 ```

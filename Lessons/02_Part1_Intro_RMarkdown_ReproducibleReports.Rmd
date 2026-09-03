@@ -23,6 +23,15 @@ Markdown lets us add simple formatting without using a traditional word processo
 
 ## Headings
 
+### Heading size 3
+
+#### **Heading size 4**
+
+##### *Heading size 5*
+
+`r k = 6*42`
+`r k`
+
 Headings organize a document into meaningful sections. One `#` creates a major heading, while additional `#` symbols create lower-level headings.
 
 ## Emphasis
@@ -55,7 +64,6 @@ The chunk below performs a simple calculation.
 5 + 2 * 3
 ```
 
-
 Try changing the expression and running the chunk again.
 
 # Code, results, and narrative together
@@ -65,7 +73,7 @@ One advantage of R Markdown is that the explanation and the analysis can remain 
 Suppose we have five environmental temperature observations:
 
 ```{r temperature-data}
-temperature <- c(18, 20, 19, 22, 21)
+temperature <- c(18, 20, 19, 22, 210)
 temperature
 ```
 
