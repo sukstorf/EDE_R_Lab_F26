@@ -2,6 +2,7 @@
 title: "Assignment 2: Coding Basics"
 author: "Peter Sukstorf"
 output: pdf_document
+toc: true
 geometry: margin=2.54cm
 editor_options: 
   chunk_output_type: console
@@ -67,20 +68,29 @@ ifelse(mean(basics_sequence)>median(basics_sequence), "The mean is greater than 
 
 ```{r basics 2}
 Student_Names <- c("Johnny", "Jeffery", "Jeremiah", "Josie")
+#This vector has character type data.
+class(Student_Names)
 Test_Scores <- c(51, 49, 37, 91)
+#This vector has numeric type data.
+class(Test_Scores)
 Scholarship_Status <- c(TRUE, FALSE, TRUE, FALSE)
+#This vector has logical type data.
+class(Scholarship_Status)
 
-Students_DF <- cbind(Student_Names, Test_Scores, Scholarship_Status)
-as.data.frame(Students_DF)
-Students_DF
-class(Students_DF)
+
+Student_Data <- cbind(Student_Names, Test_Scores, Scholarship_Status)
+#This combines the three vectors created above into a matrix.
+class(Student_Data)
+Student_Data_DF <- as.data.frame(Student_Data)
+#This makes sure that the end result (Students_DF) is a data frame, rather than a matrix or array.
+class(Student_Data_DF)
 
 
 ```
 
 9.  QUESTION: How is this data frame different from a matrix?
 
-> Answer:
+> Answer: A data frame can store all kinds of data (and specifically different kinds of data together) in each of its columns. A matrix can only store numeric data (I think) and so is less flexible than a data frame.
 
 10. Create a function with one input. In this function, use `if`...`else` to evaluate the value of the input: if it is greater than 50, print the word "Pass"; otherwise print the word "Fail". 
 
@@ -92,21 +102,32 @@ class(Students_DF)
 
 ```{r basics 3}
 #10. Create a function using if...else
+If_Dot_Else_Function <- function(Input) {
+  if(Input > 50) "Pass" else "Fail"
+}
 
 #11. Create a function using ifelse()
+If_Else_Function <- function(Input) {
+  ifelse(Input > 50,"Pass","Fail")
+}
 
 #12a. Run the first function with the value 52.5
+If_Dot_Else_Function(52.5)
 
 #12b. Run the second function with the value 52.5
+If_Else_Function(52.5)
 
 #13a. Run the first function with the vector of test scores
+##If_Dot_Else_Function(Test_Scores)
 
 #13b. Run the second function with the vector of test scores
+If_Else_Function(Test_Scores)
+
 ```
 
 14. QUESTION: Which option of `if`...`else` vs. `ifelse` worked? Why? (Hint: search the web for "R vectorization")
 
-> Answer:
+> Answer: Only the ifelse function worked because of a concept (as noted above) called "R vectorization." From what I found online, it seems like R acts upon an entire vector at once, rather than iterating steps for each unit in the vector. The problem with if... else is that it runs the if function on all the values of the vector, than the else - which doesn't work since the if and else are related. On the other hand, the ifelse function worked because it evaluated the whole expression (ifelse) on all the values at the same time, spitting out the correct results.
 
 
 ## Crafting reports - Part 4
@@ -117,7 +138,7 @@ Add a table of contents to your document and knit to a PDF. Submit your PDF to C
 
 ### Github link
 
-> Answer:
+> Answer: https://github.com/sukstorf/EDE_R_Lab_F26
 
 
 **NOTE** Before knitting, you'll need to comment out the call to the function in Q13 that does not work. (A document can't knit if the code it contains causes an error!)
