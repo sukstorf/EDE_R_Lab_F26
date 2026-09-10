@@ -1,0 +1,385 @@
+---
+title: "M3: Data Exploration: Exploring a New Environmental Dataset"
+subtitle: "Environmental Data Exploration"
+author: "John Fay & Luana Lima"
+output: pdf_document
+---
+
+# Lesson Objectives
+
+1.  Apply data exploration skills to a real-world example dataset
+
+2.  Set up a data analysis session in RStudio
+    - Working with R Packages
+    - Establishing the working directory
+    - Importing datasets
+    
+3.  Explore the imported datasets
+    - Examining properties of your dataset
+    - Identifying and addressing issues
+
+> **The one question this module answers:** *When you receive a new
+> environmental dataset, what should you examine before you begin an analysis?*
+>
+> M3 is the **data-detective** module: **understand → inspect → diagnose →
+> summarize → ask better questions.** We *find* problems here. The one thing we
+> also *fix* here is **dates** — because almost every environmental analysis is
+> temporal, we need real dates to explore the data at all. 
+
+---
+
+# Discussion: Why explore before we analyze?
+
+Why is exploration the first step with a new dataset? What do we gain, and how
+does it shape the analysis decisions further down the pipeline?
+
+> Exploration tells us what we are actually working with *before* we trust any result. It reveals the shape of the data (how many observations, how many sites, what time span), whether variables were imported as the right type, where values are missing, and whether any values are implausible. Every downstream choice — which rows to keep, how to handle gaps, which model is even appropriate — depends on what we learn here. Skipping exploration is how people end up computing a confident mean of a column that is secretly 85% missing, or plotting "dates" that R is treating as text.
+
+---
+
+# Stage 0 — Setting up a reproducible data analysis session in RStudio
+
+In many situations in data analytics, you may be expected to work from multiple computers or share projects among multiple users. A few general best practices will avoid common pitfalls related to collaborative work. 
+
+Before we can look at data, we have to load it in a way that works on any
+machine. That means: load our packages, confirm where R is looking, and import
+the **raw** file with a project-relative path.
+
+### What is a package?
+Packages add functionality to your R coding environment. Given that R is an open source software, users can create packages that have specific capabilities, with complicated code "packaged" into a simple commands - something that makes R incredibly useful and powerful. 
+
+Basic R includes many pre-installed packages, but you will likely need to install additional packages at some point. Like apps on a phone, packages only need to be installed once on a specific machine (or container), and then all future R scripts can import that package without having to re-install it. You can see the list of installed packages via the `Packages` tab in the Outputs pane (lower right).  
+
+### Installing packages
+If you want to use a specific package that is not in your library already, you need to install it. You can do this in one of three ways: 
+
+1. If your code calls a package that's not installed, a yellow ribbon at the top of the code appears asking whether you want to install the package. Clicking the `Install` button will install the package. 
+
+2. Click the install button in the packages tab. Type the package name, which should autocomplete below (case matters). Make sure to check "install dependencies," which will also install packages that your new package uses. 
+
+3. Type `install.packages("packagename")` into your R chunk or console. It will then appear in your packages list. 
+
+> Reminder: you only need to install packages once on a given machine. In fact, if you include the `install.packages()` command in an R code chunk, you should comment it out; otherwise, R will reinstall the package each time the code is run. **Furthermore, your RMarkdown file will not knit, as the knit command is unable install packages.**
+
+
+### Loading packages
+To access the functionality of an installed package in your code, you typically load it using the `library()` command. And all packages should be loaded at the top of your code, thus providing an easy to see list of all the packages which your script requires.
+
+You need to load packages each time you start (or restart) an R coding session; once the RStudio application is closed, connections to the packages are reset. (Another good reason to load your packages in your script itself.) 
+
+> **Notes:** 
+> - You can access the functionality of a package without loading it via the `library()` function. This is done by preceding the command you want to use with the name of the library, e.g., `lubridate::mdy('Jan-01-2001')` will execute the `myd()` function of the lubridate package without needing to actually load the lubridate package. 
+> - Also, you can load, unload, or just view what packages are loaded in your current session via the Packages tab in the Output pane. However, it's best practice to load packages in your code. (Can you guess why?)
+> - Install a package **once** per machine (`install.packages()`), then `library()` it in **every** script. Keep `install.packages()` commented out so the file still knits.
+> - `here()` always points to your `.Rproj` folder, so relative paths keep working even if you move or share the project. Avoid `setwd()` — it hard-codes an absolute path that breaks on someone else's computer.
+> - If `read.csv()` can't find your file, it's almost always a wrong path, a typo, or an absolute path where a relative one belongs.
+
+```{r Setup: Loading Packages, message = FALSE}
+## Install packages
+#install.packages("tidyverse")   # run once, then leave commented
+#install.packages("here")
+
+## Load packages
+library(tidyverse)   # gives us dplyr, ggplot2, readr, lubridate, glimpse(), etc.
+library(here)        # project-relative file paths
+
+#Some packages are umbrellas under which other packages are loaded, tidyverse is one example
+
+```
+
+### Establishing the working directory
+
+#### The importance of the "working directory"
+A typical R project involves many files organized into folders and subfolders, all located within a single **project folder**. Your R code is able to find these various files via their paths, and these paths are relative to a central location called the **working directory**. However, for this to work, R needs to know what, precisely, we want to use as a working directory. 
+
+When you open an R project, your working directory *should* automatically set to the folder that holds the project file (`*.Rproj`). However, if you open an R script or RMarkdown document directly by double-clicking the file, your working directory may automatically set to the folder that holds that file. And the fact that the working directory changes depending on how we've opened a file can mess up our scripts, since they rely on a stable and specific working directory. 
+
+#### Setting the working directory
+The R commands `getwd()` and `setwd()` allow us to get and set the working directory, respectively. The `setwd()` command, however, requires an absolute path. Thus, if ever you rename or move directories, your code breaks. We discourage you from using `setwd()`. 
+
+Instead, we will use the `here` package, which was developed to overcome this very issue. See this page for a deeper explanation: <https://github.com/jennybc/here_here>. The `here()` command of the `here` package will *always* point to whatever folder your R Project files is in, and then we can use that as a base to find all other files without our project workspace. 
+
+Thus, you'll want to include the following command, also early on in your RMarkdown document to reveal your working directory.
+
+```{r Setup: Configure working directory}
+## Confirm where R is looking
+getwd()   # R's current working directory
+here()    # the project root (where the .Rproj file lives)
+
+```
+
+### Importing datasets
+
+Datasets can be imported into R. Good data practices dictate that raw data (from yourself or others) should not be changed and re-saved within the spreadsheet, but rather the data should be changed with reproducible techniques and saved as a new file. Note:  data should be saved in nonproprietary formats, namely .csv or .txt files rather than .xls or .xlsx files. 
+
+To read in a data file, you may specify a file path with an *absolute* or a *relative* file path. As above with your working directory, it is a better practice to use a relative directory. To navigate a relative file path, use `./` followed by the tab key to navigate  forward in the folder structure, and use `../` followed by the tab key to navigate back out of the folder structure. For example, this lesson is located in the "Lessons" folder, and we need to navigate into the "Data" folder. After clicking the correct folder, use `/` and press tab again to continue the process. 
+
+You may also import datasets from the Files tab, but this is not recommended since this is not reproducible.
+
+Commons functions to import datasets and store as data frames are *read.table()*, *read.csv()*, *read.xlsx()*. Useful inputs/arguments are described below.
+
+-   *file = * : use this input to point to your data file. If it's on the same folder as your .Rmd then you only need to write the file name. But if it's on another folder you need to point to the path were file is located;
+-   *header =* : if your file has a header you should set this to TRUE, o.w. FALSE;
+-   *skip =* : if your file has rows explaining the data or any other rows on the top that need to be skipped you should just set skip to be equal to the number of row that should be skipped before reading the data. Mote that if header=TRUE, you should not skip the row with the header. The defaul is *skip=0*;
+-   *dec =* : define *dec="."* or *dec=","* depending on how it's defined on your set. The default is ".".
+
+```{r Setup: Importing data}
+## Import the RAW dataset (we never edit raw data in place)
+# Note: we do NOT set stringsAsFactors. Modern R keeps text as character,
+# which is what we want. We only override the ONE column R would guess wrong:
+# site_no looks numeric but is really an ID with a leading zero, so we keep it
+# as character to protect that zero.
+USGS.flow.data <- read.csv(
+  file = here("Data/Raw/USGS_Site02085000_Flow_Raw.csv"),
+  colClasses = c("site_no" = "character")
+)
+
+
+```
+
+> **Tip:** Use autocomplete in the console instead of typing in the path.
+---
+
+# Exploring your Dataset
+
+## Stage 1 — Understand the source
+
+Prior to analyzing your dataset, take a moment to understand your data. 
+The most valuable exploration happens before any code: **read the metadata.**
+For this dataset, open the README in `Data/Metadata/` and ask:
+
+- Where did the data come from, and who collected it?
+- Why was it collected — and does that purpose fit *our* question?
+- What does one **row** represent?
+- What are the variables and their **units**?
+- What **spatial and temporal coverage** does it have?
+- What limitations or biases might it carry?
+
+
+> **Answer:** These data are daily streamflow (discharge) and gage height for USGS site 02085000 on the Eno River, NC. The USGS is a federal scientific agency whose mission includes collecting and distributing this kind of monitoring data, so it's a reliable, well-documented source with standardized methods and quality-approval codes (the `*.approval` columns). One row is one **site-day**: all measurements for that gage on that calendar date. Units are cubic feet per second for discharge and feet for gage height. Coverage is a single site over several decades of daily records. Main limitations: it is one station (not a spatial network), it has substantial missing data in early years, and the raw date field is ambiguous — all things we confirm below.
+
+---
+
+## Stage 2 — Inspect the structure
+
+Next, have a look at your dataset. Browse your data in RStudio's viewer. Have a look at the structure of your data. Consider renaming columns. 
+
+`glimpse()` is our workhorse: it shows every column, its type, and the first few
+values, all in one compact view.
+
+
+```{r inspect-structure}
+View(USGS.flow.data)
+# Alternate option: click on data frame in Environment tab
+
+colnames(USGS.flow.data)
+
+## Give the coded columns human-readable names (from the metadata)
+colnames(USGS.flow.data) <- c(
+  "agency_cd", "site_no", "datetime",
+  "discharge.max", "discharge.max.approval",
+  "discharge.min", "discharge.min.approval",
+  "discharge.mean", "discharge.mean.approval",
+  "gage.height.max", "gage.height.max.approval",
+  "gage.height.min", "gage.height.min.approval",
+  "gage.height.mean", "gage.height.mean.approval"
+)
+
+glimpse(USGS.flow.data)   # one-line-per-column overview (from the tidyverse)
+
+dim(USGS.flow.data)       # rows, then columns
+names(USGS.flow.data)     # column names
+head(USGS.flow.data)      # first 6 rows
+tail(USGS.flow.data, 5)  # last 5 rows
+```
+
+> `str()` is the base-R cousin of `glimpse()` — you'll see it in other people's
+code, so recognize it, but we'll use `glimpse()`.
+
+**What do we see?** ~33,700 rows and 15 columns; a single agency and site;
+`datetime` came in as **character** (not a date); and lots of `NA`s in the
+measurement columns. Each of those is a lead to follow.
+
+The `NA`s correspond to blank cells in the spreadsheet. This are missing values, i.e., 
+there was no recording for that specific time, more on that later.
+---
+
+## Stage 3 — Check variable types
+
+When `read.csv()` imports a file, it *guesses* each column's type from its
+values. Our job is to spot where the guess is wrong.
+
+```{r check-types}
+class(USGS.flow.data$datetime)        # "character" — but these are dates!
+class(USGS.flow.data$discharge.mean)  # "numeric" — correct
+class(USGS.flow.data$site_no)         # "character" — because WE protected it
+```
+
+> **Diagnosis:** the numeric measurement columns look right, and we keep
+> `site_no` as character on purpose (an ID, not a quantity). The one type we
+> must fix before we can go further is `datetime` — that's the next stage.
+
+---
+
+## Stage 4 — Parse and format dates
+
+Almost everything we'll want to ask of this dataset is temporal — *when* did flows peak, are there gaps in certain years — so a date stored as text is useless to us. We have to tell R these are dates, and in **what format** they were written.
+
+R will often import dates as factors or characters rather than dates. To fix, this we need to tell R that it is looking at dates. We also need to specify the format the dates are in. By default, if you don't provide a format, R will attempt to use %Y-%m-%d or %Y/%m/%d as a default. Note: if you are working collaboratively in an international setting, using a year-month-day format in spreadsheets is the least ambiguous of date formats. Make sure to check whether month-day-year or day-month-year is used in an ambiguously formatted spreadsheet.
+
+Formatting of dates in R: 
+
+%d  day as number (0-31)
+%m  month (00-12, can be e.g., 01 or 1)
+%y  2-digit year
+%Y  4-digit year
+%a  abbreviated weekday
+%A  unabbreviated weekday
+%b  abbreviated month
+%B  unabbreviated month
+
+Our raw `datetime` is written like `1928-01-01` — that's **year-month-day**
+— so the format string is `"%Y-%m-%d"`.
+
+```{r parse-dates}
+# Convert text -> Date by describing the format it's written in
+USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%Y-%m-%d")
+class(USGS.flow.data$datetime)   # now "Date"
+```
+
+**The two-digit-year trap.** A year like `27` is ambiguous — 1927 or 2027? R
+guesses centuries with a fixed rule (00-68 → 2000s, 69-99 → 1900s), so early
+records land in the **future**:
+
+Any date later than today must actually be 20th-century, so whener dates come with only 2 digit specifying year you may need to do some extra processing. In the lab we will see how to do that with **lubridate**, which loads with the tidyverse.
+
+> **Note:.** `as.Date()` is base R and worth knowing because you'll meet it everywhere. Later in the course, lubridate's `mdy()`, `ymd()`, etc. make this even simpler — you'll use those in the lab. And the cleanest fix of all is upstream: whenever *you* create a spreadsheet, store dates as **4-digit-year `YYYY-MM-DD`** so this ambiguity never happens.
+
+---
+
+## Stage 5 — Identify missing and unusual values
+
+Now we hunt for problems: missing values, implausible values, duplicates, and
+odd categories. **We identify; we do not yet correct** (that's M4).
+
+```{r missing-and-unusual}
+# How many NAs in each column?
+colSums(is.na(USGS.flow.data))
+
+# Focus on one measurement column
+summary(USGS.flow.data$discharge.min)   # note the NA's count at the end
+
+# Implausible values? Look at the spread of the daily maximum.
+summary(USGS.flow.data$discharge.max)    # inspect the max for suspicious spikes
+
+# Any exact duplicate rows?
+sum(duplicated(USGS.flow.data))
+
+# Do the categorical columns hold clean, expected categories?
+unique(USGS.flow.data$agency_cd)                 # should be one agency
+unique(USGS.flow.data$discharge.mean.approval)   # approval codes (A, P, ...)
+```
+
+**A cautionary demonstration — do NOT do this as a cleaning step.** It's tempting
+to "get rid of the NAs" with `na.omit()`. Watch what that costs us:
+
+```{r na-omit-demo}
+# DEMONSTRATION ONLY. na.omit() drops any row with an NA in ANY column.
+nrow(USGS.flow.data)                 # ~30,848 rows
+nrow(na.omit(USGS.flow.data))        # ~5,342 rows — we'd throw away ~85%!
+```
+
+> Because gage-height columns are missing far more often than discharge,
+> `na.omit()` deletes rows that still had perfectly good discharge data. **How to
+> handle missing values properly is an M4 topic** — for now we just record *that*
+> the data are heavily incomplete and *where*.
+
+---
+
+## Stage 6 — Descriptive summaries
+
+Turn the whole dataframe into quick numbers, and answer a few basic questions.
+
+```{r summaries}
+summary(USGS.flow.data)   # min / quartiles / mean / max / NA-count per numeric column
+
+# How many monitoring sites are represented?
+length(unique(USGS.flow.data$site_no))   # 1 — this is a single-station record
+
+# What is the range of the measured discharge (ignoring NAs)?
+range(USGS.flow.data$discharge.mean, na.rm = TRUE)
+
+# What time span do the records cover? (datetime is a real Date now)
+range(USGS.flow.data$datetime)
+```
+
+
+---
+# Visualization for Data Exploration
+
+## Stage 7 — Diagnostic plots
+
+Although the `summary()` function is helpful in getting an idea of the spread of values in a numeric dataset, it can be useful to create visual representations of the data to help form hypotheses and direct downstream data analysis. Below is a summary of the useful types of graphs for data exploration.
+
+Note: each of these approaches utilize the package "ggplot2". We will be covering the syntax of ggplot in M5, but for now you should familiarize yourself with the functionality of what each command is doing. In M3, plots are **detective tools**, not finished figures. 
+
+
+### Bar Chart (function: geom_bar)
+
+Visualize count data for categorical variables. 
+
+
+```{r diagnostic-plots, fig.height = 3, fig.width = 4, warning = FALSE}
+# 1. CATEGORICAL — a bar chart of the discharge approval codes
+ggplot(USGS.flow.data, aes(x = discharge.mean.approval)) +
+  geom_bar()
+
+
+
+
+```
+
+### Histogram (function: geom_histogram)
+Visualize distributions of values for continuous numerical variables. 
+
+```{r}
+# 2. DISTRIBUTION — a histogram of daily mean discharge
+ggplot(USGS.flow.data, aes(x = discharge.mean)) +
+  geom_histogram(bins = 30)
+```
+
+### Scatterplot (function: geom_point)
+Visualize relationships between continuous numerical variables.
+
+
+```{r}
+# 3. RELATIONSHIP OVER TIME — discharge as a time series
+#     (now possible because we fixed the dates in Stage 4)
+ggplot(USGS.flow.data, aes(x = datetime, y = discharge.mean)) +
+  geom_line()
+# Another kind of "relationship" plot is two measurements against each other,
+# e.g. discharge vs gage height:  geom_point(aes(x = gage.height.mean, y = discharge.mean))
+```
+
+
+**Interpratation:** the bar chart shows most days are quality-approved; the histogram is sharply right-skewed (many low-flow days, a long tail of floods), which warns us that a raw mean is a poor summary; the time series exposes the record's shape over the decades — seasonality, flood spikes, and visible gaps where data are missing.
+
+---
+
+## Stage 8 — Document your initial findings
+
+What did you learn about the USGS discharge dataset today? What separate insights did the different graph types offer? Close every data exploration with a few short statements. This is the deliverable that turns "I ran some commands" into "I understand this dataset."
+
+> - **One key characteristic:**  ~30,800 daily records for a single Eno River
+>   gage (site 02085000), spanning several decades of discharge and gage height.
+> - **One data-quality issue:** heavy missingness (discharge missing on
+>   thousands of days, gage height on far more)
+> - **One interesting pattern:** discharge is strongly right-skewed, with clear
+>   seasonality and flood spikes across the record.
+> - **One question for further analysis:** are the missing periods clustered in
+>   specific years or seasons (e.g., early-record gaps), and does that bias any
+>   long-term trend we might later estimate?
+
+---
+
+
